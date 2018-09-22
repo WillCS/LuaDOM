@@ -24,6 +24,18 @@ function baseSet.__newIndex(table, key, value)
     -- You're not allowed to put stuff in here
 end
 
+-- Extensionality says that any two sets with the same elements are in fact
+-- the same set. Rules are rules.
+function baseSet.__eq(t1, t2)
+    for e in t1:iterator() do
+        if not t2:contains(e) then
+            return false
+        end
+    end
+
+    return true
+end
+
 -- Checks to see whether or not this set contains the given element.
 function baseSet:contains(element)
     return self.members[element]
@@ -84,19 +96,16 @@ end
 
 -- Used to iterate over every element in this set easily.
 function baseSet:iterator()
-    return self.next, nil
-end
+    return function(k)
+        local newK = k
+        local actuallyContains = false
 
--- Specialization of Lua's primitive next function for sets.
-function baseSet:next(k)
-    local newK = k
-    local actuallyContains = false
+        while not (actuallyContains or newK == nil) do
+            newK, actuallyContains = next(self.members, newK)
+        end
 
-    while not actuallyContains do
-        newK, actuallyContains = next(self.members, newK)
-    end
-
-    return newK
+        return newK
+    end, nil
 end
 
 -- Who doesn't love aliases?
