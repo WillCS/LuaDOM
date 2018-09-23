@@ -1,6 +1,17 @@
 local baseSet = {}
 baseSet.__index = baseSet
 
+-- Construct a new set object and return it.
+local function new()
+    local set = {}
+    set.size = 0
+    set.members = {}
+
+    setmetatable(set, baseSet)
+
+    return set
+end
+
 -- If the Lua version supports it, #set returns the size of this set.
 function baseSet.__len(table)
     return table.size
@@ -46,7 +57,7 @@ end
 function baseSet:add(element)
     if not self:contains(element) then
         self.members[element] = true
-        self.size = self.size + 1
+        rawset(self, "size", self.size + 1)
     end
 end
 
@@ -55,7 +66,7 @@ end
 function baseSet:remove(element)
     if self:contains(element) then
         self.members[element] = false
-        self.size = self.size - 1
+        rawset(self, "size", self.size - 1)
     end
 end
 
@@ -66,7 +77,7 @@ function baseSet:copy()
         newSet:add(e)
     end
 
-    return new
+    return newSet
 end
 
 -- Puts every element in the given set into this set. 
@@ -78,8 +89,8 @@ end
 
 -- Removes every element in this set that is not also in the given set.
 function baseSet:intersect(set)
-    for e in set:iterator() do
-        if not self:contains(e) then
+    for e in self:iterator() do
+        if not set:contains(e) then
             self:remove(e)
         end
     end
@@ -94,18 +105,20 @@ function baseSet:exclude(set)
     end
 end
 
+ function baseSet:next(k)
+    local newK = k
+    local actuallyContains = false
+
+    repeat
+        newK, actuallyContains = next(self.members, newK)
+    until newK == nil or actuallyContains
+
+    return newK
+end
+
 -- Used to iterate over every element in this set easily.
 function baseSet:iterator()
-    return function(k)
-        local newK = k
-        local actuallyContains = false
-
-        while not (actuallyContains or newK == nil) do
-            newK, actuallyContains = next(self.members, newK)
-        end
-
-        return newK
-    end, nil
+    return self.next, self, nil
 end
 
 -- Who doesn't love aliases?
@@ -113,17 +126,6 @@ baseSet.include = baseSet.unite
 baseSet.addAll = baseSet.unite
 
 baseSet.removeAll = baseSet.exclude
-
--- Construct a new set object and return it.
-local function new()
-    local set = {}
-    set.size = 0
-    set.members = {}
-
-    setmetatable(set, baseSet)
-
-    return set
-end
 
 -- Returns the union of the two given sets.
 local function union(set1, set2)
@@ -143,5 +145,5 @@ end
 Set = {
     new = new,
     union = union,
-    intersection = intersection
+    intersection = intersection,
 }

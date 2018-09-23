@@ -35,7 +35,11 @@ for i, v in ipairs(testSuites) do
     end
 
     io.write("\n")
-    io.write("Passed " .. numPassed .. "/" .. numTests .. "\n\n")
+    io.write("Passed " .. numPassed .. "/" .. numTests .. "\n")
+    if numFailed ~= 0 then
+        io.write("Failed " .. numFailed .. "/" .. numTests .. "\n")
+    end
+    io.write("\n")
     io.flush()
 
     totalTests = totalTests + numTests
@@ -45,4 +49,7 @@ end
 
 io.write("Testing finished\n")
 io.write("Passed " .. totalPassed .. "/" .. totalTests .. "\n")
-io.write("Failed " .. totalFailed .. "/" .. totalTests .. "\n")
+if totalFailed ~= 0 then
+    io.write("Failed " .. totalFailed .. "/" .. totalTests .. "\n")
+end
+io.flush()
