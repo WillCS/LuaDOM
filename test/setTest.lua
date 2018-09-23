@@ -1,6 +1,6 @@
 require("../src/set")
 
-local tests = {}
+tests = {}
 
 function tests.same_equality()
     local set = Set.new()
@@ -37,21 +37,4 @@ function tests.multiple_equality()
     assert(set1 == set2, "Two sets containing the same four elements aren't equal.")
 end
 
-return function()
-    for k, v in pairs(tests) do
-        io.write("-" .. k .. "-\n")
-        local startTime = os.clock()
-        local passed, msg = pcall(v)
-        local timeTaken = (os.clock() - startTime) .. " sec"
-
-        if passed then
-            io.write(" > passed in " .. timeTaken)
-        else
-            io.write(" > failed " .. timeTaken .. "\n")
-            io.write(" > " .. msg)
-        end
-
-        io.write("\n")
-    end
-    io.flush()
-end
+return tests
